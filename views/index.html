@@ -1,0 +1,153 @@
+<!doctype html>
+<html ng-app="techApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <title>Main</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">    
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.2/d3.min.js"></script>
+    <script src="javascripts/nv.d3.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+    <script src="javascripts/techApp.js"></script>
+    <script src="javascripts/underscore.min.js"></script>
+    <script src="javascripts/gauss.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/nv.d3.min.css">
+    <style>
+    #chart svg {
+	   height: 400px;
+	}
+    </style>
+</head>
+<body ng-controller="techAppCtrl">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Technical Analyst in a Box</a>
+          <a href="https://github.com/fernavid"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github-camo.global.ssl.fastly.net/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <div style="float:right; padding-right: 30px;" class="navbar-form">
+          <a href="https://twitter.com/fernavid" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @fernavid</a>
+          <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <style>
+    div.content {
+      padding-top: 50px;
+      padding-bottom: 20px;
+    }
+    #model {
+        width:25%;
+        height: 400px;
+        float: left;
+    }
+    #chart {
+        height: 400px;
+        width: 75%;
+        float: left;
+    }
+    </style>
+    <div class="container content">
+        <div class="container">
+          <!-- Example row of columns -->
+          <div class="row">
+            <div class="col-md-4">
+              <h2>Step 1: Choose a Stock</h2>
+              <p>
+              <form class="form-inline" role="form">
+                  <div class="form-group">
+                    <label for="ticker">Ticker</label>
+                    <input ng-model="stock.ticker" type="text" class="form-control" id="ticker" placeholder="Enter a stock ticker">
+                    <button ng-click="loadPrices(stock)" class="btn btn-default" href="#">Load Prices</button>
+                  </div>
+              </form>
+              <p></p>
+              <label>Feel like a smart-ass? Generate a random walk.</label>
+              <button ng-click="getRandom()" class="btn btn-default" href="#">Generate Random Walk</button>
+              </p>
+            </div>
+            <div class="col-md-4">
+              <h2>Step 2: Build Indicator</h2>
+              <p>
+              Set the number of periods to use for the short and long term moving average below. When the shorter moving average is above the longer moving average, we will be in the market. When it is below, we are out.
+              </p>
+              <button ng-click="addSMA(indicator)" class="btn btn-default" href="#">Add Moving Averages</button>
+           </div>
+            <div class="col-md-4">
+              <h2>Step 3: Profit?</h2>
+              <p>
+              Now that the magic numbers have been decided, backtest this strategy and see how it does!
+              </p>
+              <button ng-click="backtest()" class="btn btn-default">Backtest Strategy</button>
+            </div>
+          </div>
+        </div>
+        <hr>
+
+      <div class="container well">
+        <div id="model">
+            <h3>Model Parameters</h3>
+            <hr>
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Short MA</label>
+                    <div class="col-sm-5">
+                        <input class="form-control" ng-model="indicator.shortMA" placeholder="Periods">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Long MA</label>
+                    <div class="col-sm-5">
+                        <input class="form-control" ng-model="indicator.longMA" placeholder="Periods">
+                    </div>
+                </div>
+            </form>
+            <button ng-click="addSMA(indicator)" class="btn btn-default" href="#">Add Moving Averages</button>
+            <hr>
+            <div class="row">
+                <div class="col-sm-8">
+                    <strong>Strategy Return</strong>
+                    <h3>{{indicator.performance}}%</h3>
+                </div>
+                <div class="col-sm-8">
+                    <strong>Stock Return</strong>
+                    <h3>{{stock.performance}}%</h3>
+                </div>
+            </div>
+        </div>
+        <div id="chart">
+            <div class="text-center" ng-show="notloaded">
+            <h1>No Data Loaded</h1>
+            </div>
+            <div class="spinner text-center" ng-show="loading">
+                Analyzing, please wait.
+                <img src="images/loader.gif"></img>
+            </div>
+            <svg></svg>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>
+            
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+        </p>
+      </footer>
+    </div> 
+    <!-- /container -->
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Technical Analyst in a Box</a>
+      <a href="https://github.com/fernavid"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github-camo.global.ssl.fastly.net/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+    </div>
+    
+  </div>
+</div>
+<style>
+div.content {
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+#model {
+	width:25%;
+	height: 400px;
+	float: left;
+}
+#chart {
+	height: 400px;
+	width: 75%;
+	float: left;
+}
+</style>
+<div class="container content">
+	<div class="container">
+	  <!-- Example row of columns -->
+	  <div class="row">
+	    <div class="col-md-4">
+	      <h2>Step 1: Choose a Stock</h2>
+	      <p>
+	      <form class="form-inline" role="form">
+			  <div class="form-group">
+			    <label for="ticker">Ticker</label>
+			    <input ng-model="stock.ticker" type="text" class="form-control" id="ticker" placeholder="Enter a stock ticker">
+			    <button ng-click="loadPrices(stock)" class="btn btn-default" href="#" ng-click="loadPrices(img)">Load Prices</button>
+			  </div>
+		  </form>
+		  <p></p>
+		  <label>Feel like a smart-ass? Generate a random walk.</label>
+		  <button class="btn btn-default" href="#">Generate Random Walk</button>
+	      </p>
+	    </div>
+	    <div class="col-md-4">
+	      <h2>Step 2: Optimize Indicator</h2>
+	      <p>
+	      Here we build a moving average cross strategy to guide us on when to be in or out of the market. When the shorter moving average is above the longer moving average, we buy. When it is below, we sell.
+	      </p>
+	      <a class="btn btn-default" href="#">Optimize</a>
+	   </div>
+	    <div class="col-md-4">
+	      <h2>Step 3: Profit?</h2>
+	      <p>
+	      Now that the magic numbers have been calculated, backtest this strategy and see how it does!
+	      </p>
+	      <a class="btn btn-default" href="#">Backtest Strategy</a>
+	    </div>
+	  </div>
+	</div>
+	<hr>
+
+  <div class="container well">
+  	<div id="model">
+  		<h3>Model Parameters</h3>
+  		<strong>Short Moving Average: {{indicator.shortMA}}</strong>
+  		<p></p>
+  		<strong>Long Moving Average: {{indicator.longMA}}</strong>
+  		<p></p>
+  		<h3>Model Performance:</h3>
+  		<strong>Annualized Return: {{indicator.performance}}</strong>
+  	</div>
+    <div id="chart">
+    	<svg></svg>
+    </div>
+  </div>
+
+  <hr>
+
+  <footer>
+    <p>
+    	<a href="#"></a>
+    </p>
+  </footer>
+</div> 
+<!-- /container -->
+
+
+<script src="javascripts/gauss.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    var Vector = gauss.Vector,
+        TimeSeries = gauss.TimeSeries;
+
+    function makeChart(benchmark, model, symbol){
+    	var data = [
+    		{
+    			key: symbol,
+    			values: benchmark
+    		},
+    	];
+    	nv.addGraph(function() {
+		  var chart = nv.models.lineWithFocusChart();
+
+		  chart.xAxis
+		      .tickFormat(function(d) {
+		        return d3.time.format('%x')(new Date(d))
+		      });
+
+		  chart.x2Axis
+		      .tickFormat(function(d) {
+		        return d3.time.format('%x')(new Date(d))
+		      });
+
+		  chart.yAxis
+		      .tickFormat(d3.format(',.2f'));
+
+		  d3.select('#chart svg')
+		      .datum(data)
+		    .transition().duration(500)
+		      .call(chart);
+
+		  nv.utils.windowResize(chart.update);
+
+		  return chart;
+		});
+    }
+
+</script>
